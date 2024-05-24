@@ -8,3 +8,7 @@ class MissingDataTypeException(Exception):
 
 class IncorrectURLException(Exception):
     pass
+
+
+class NarrowRangeException(Exception):
+    pass

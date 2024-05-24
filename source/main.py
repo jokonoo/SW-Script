@@ -1,7 +1,7 @@
 import asyncio
 import argparse
 import os
-from script import start_script, OUTPUT_PATH
+from script import start_script, OUTPUT_PATH, logging
 
 parser = argparse.ArgumentParser(description="Interval argument parser")
 parser.add_argument("--interval", type=int, required=False,
@@ -13,4 +13,9 @@ if __name__ == '__main__':
 
     if os.path.exists(OUTPUT_PATH):
         os.remove(OUTPUT_PATH)
-    asyncio.run(start_script(args.interval))
+    try:
+        asyncio.run(start_script(args.interval))
+    except Exception as e:
+        logging.info("Script work failed")
+        logging.error(e)
+
