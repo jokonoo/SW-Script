@@ -62,7 +62,7 @@ class TestScript:
         for person in (yaml_data["people"]):
             assert isinstance(person, dict)
             assert person.get("height")
-            assert isinstance(person["height"], str)
+            assert isinstance(person["height"], int)
             assert person.get("name")
             assert isinstance(person["name"], str)
         for planet in (yaml_data["planets"]):

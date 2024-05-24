@@ -37,7 +37,7 @@ def load_data_from_request(url, response_data):
     if "planets" in url:
         return {"name": response_data["name"], "terrain": response_data["terrain"]}
     elif "people" in url:
-        return {"name": response_data["name"], "height": response_data["height"]}
+        return {"name": response_data["name"], "height": int(response_data["height"])}
     raise IncorrectURLException("Incorrect URL address")
 
 
