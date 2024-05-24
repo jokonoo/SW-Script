@@ -1,0 +1,8 @@
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+    command: python3 -m main --interval 3
+    volumes:
+      - ./:/app

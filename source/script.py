@@ -6,7 +6,7 @@ import random
 import yaml
 
 from source.exceptions import IncorrectURLException, MissingDataTypeException, ZeroCountException
-from source.config import PLANET_RANGE, PERSON_RANGE, OUTPUT_PATH, COUNT_OF_PEOPLE_AND_PLANET
+from source.config import config_data, PLANET_RANGE, PERSON_RANGE, OUTPUT_PATH, COUNT_OF_PEOPLE_AND_PLANET
 
 logging.basicConfig(
     level=logging.INFO,
@@ -68,6 +68,7 @@ async def add_data(session, first_iteration=False):
     new_person_data = load_data_from_request(*new_person_request)
     new_planet_data = load_data_from_request(*new_planet_request)
     if first_iteration:
+        logging.info(f"OUTPUT PATH IS {OUTPUT_PATH}")
         with open(OUTPUT_PATH, 'w') as outfile:
             yaml.safe_dump({"people": [new_person_data], "planets": [new_planet_data]}, outfile, sort_keys=False)
         return
@@ -79,6 +80,7 @@ async def add_data(session, first_iteration=False):
 
 
 async def start_script(interval_time_value):
+    logging.info(f"CONFIGURATION VARIABLES: {config_data}")
     if COUNT_OF_PEOPLE_AND_PLANET > 0:
         async with aiohttp.ClientSession() as session:
             await add_data(first_iteration=True, session=session)

@@ -311,4 +311,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-*.data.yaml
+*/*data.yaml
