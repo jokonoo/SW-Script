@@ -2,34 +2,16 @@ import asyncio
 import aiohttp
 import logging
 import random
-import time
 
 import yaml
 
-from source.exceptions import ZeroCountException, MissingDataTypeException
+from source.exceptions import IncorrectURLException, MissingDataTypeException, ZeroCountException
 from source.config import PLANET_RANGE, PERSON_RANGE, OUTPUT_PATH, COUNT_OF_PEOPLE_AND_PLANET
 
 logging.basicConfig(
     level=logging.INFO,
     handlers=[
         logging.StreamHandler()])
-
-
-async def load_async_tasks(session):
-    tasks = []
-    for data_type in ["people", "planets"]:
-        tasks.append(asyncio.create_task(load_url(data_type, session)))
-    responses = await asyncio.gather(*tasks)
-    return [(str(response.url), await response.json()) for response in responses]
-
-
-def load_data_from_request(url, response):
-    print(url)
-    print(response)
-    if "planets" in url:
-        return {"name": response["name"], "terrain": response["terrain"]}
-    elif "people" in url:
-        return {"name": response["name"], "height": response["height"]}
 
 
 async def load_url(data_type, session):
@@ -41,6 +23,22 @@ async def load_url(data_type, session):
         return await session.get(f"http://swapi.dev/api/{data_type}/{random_number}/")
     except NameError:
         raise MissingDataTypeException("Provided data type does not exist")
+
+
+async def load_async_tasks(session):
+    tasks = []
+    for data_type in ["people", "planets"]:
+        tasks.append(asyncio.create_task(load_url(data_type, session)))
+    responses = await asyncio.gather(*tasks)
+    return [(str(response.url), await response.json()) for response in responses]
+
+
+def load_data_from_request(url, response_data):
+    if "planets" in url:
+        return {"name": response_data["name"], "terrain": response_data["terrain"]}
+    elif "people" in url:
+        return {"name": response_data["name"], "height": response_data["height"]}
+    raise IncorrectURLException("Incorrect URL address")
 
 
 def load_yaml_data():

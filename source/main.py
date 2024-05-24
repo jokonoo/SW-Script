@@ -6,7 +6,7 @@ from script import start_script, OUTPUT_PATH
 parser = argparse.ArgumentParser(description="Interval argument parser")
 parser.add_argument("--interval", type=int, required=False,
                     help="Provide number of seconds between each requests interval, 5 by default",
-                    default=0)
+                    default=5)
 args = parser.parse_args()
 
 if __name__ == '__main__':
