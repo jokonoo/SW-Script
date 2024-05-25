@@ -1,5 +1,6 @@
 import asyncio
 import aiohttp
+from typing import Any
 import logging
 import random
 
@@ -14,7 +15,7 @@ logging.basicConfig(
         logging.StreamHandler()])
 
 
-async def load_url(data_type, session):
+async def load_url(data_type: str, session: aiohttp.ClientSession) -> Any:
     if data_type == "planets":
         random_number = random.randint(1, PLANET_RANGE)
     elif data_type == "people":
@@ -25,7 +26,7 @@ async def load_url(data_type, session):
         raise MissingDataTypeException("Provided data type does not exist")
 
 
-async def load_async_tasks(session):
+async def load_async_tasks(session: aiohttp.ClientSession) -> list[tuple[str, dict]]:
     tasks = []
     for data_type in ["people", "planets"]:
         tasks.append(asyncio.create_task(load_url(data_type, session)))
@@ -33,7 +34,7 @@ async def load_async_tasks(session):
     return [(str(response.url), await response.json()) for response in responses]
 
 
-def load_data_from_request(url, response_data):
+def load_data_from_request(url: str, response_data: dict) -> dict:
     if "planets" in url:
         return {"name": response_data["name"], "terrain": response_data["terrain"]}
     elif "people" in url:
@@ -41,29 +42,33 @@ def load_data_from_request(url, response_data):
     raise IncorrectURLException("Incorrect URL address")
 
 
-def load_yaml_data():
+def load_yaml_data() -> dict:
     with open(OUTPUT_PATH, 'r') as outfile:
         return yaml.safe_load(outfile)
 
 
-def yaml_data_lengths(data_type):
+def yaml_data_lengths(data_type: str) -> int:
     return len(load_yaml_data()[data_type])
 
 
-def update_data(data_type, data):
+def update_data(data_type: str, data: dict) -> None:
     cur_yaml = load_yaml_data()
     for item in cur_yaml[data_type]:
         if item["name"] == data["name"]:
-            logging.info(f"{data_type} object already in output file: {data}")
+            logging.warning(f"{data_type} object already in output file: {data}")
             return
     cur_yaml[data_type].append(data)
+    logging.info(f"Adding type: {data_type} to output file: {data}")
 
     if cur_yaml:
-        with open(OUTPUT_PATH, 'w') as outfile:
-            yaml.safe_dump(cur_yaml, outfile, sort_keys=False)
+        try:
+            with open(OUTPUT_PATH, 'w') as outfile:
+                yaml.safe_dump(cur_yaml, outfile, sort_keys=False)
+        except FileNotFoundError as e:
+            logging.error(e)
 
 
-async def add_data(session, first_iteration=False):
+async def add_data(session: aiohttp.ClientSession, first_iteration: bool = False) -> None:
     new_person_request, new_planet_request = await load_async_tasks(session)
     new_person_data = load_data_from_request(*new_person_request)
     new_planet_data = load_data_from_request(*new_planet_request)
@@ -79,7 +84,7 @@ async def add_data(session, first_iteration=False):
         update_data("planets", new_planet_data)
 
 
-async def start_script(interval_time_value):
+async def start_script(interval_time_value: int) -> None:
     logging.info(f"CONFIGURATION VARIABLES: {config_data}")
     if COUNT_OF_PEOPLE_AND_PLANET > 0:
         async with aiohttp.ClientSession() as session:

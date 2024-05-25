@@ -10,10 +10,10 @@ OUTPUT_PATH = config_data['output_path']
 if not os.path.exists(OUTPUT_PATH):
     OUTPUT_PATH = os.getcwd()
 
-OUTPUT_PATH = os.path.join(OUTPUT_PATH, 'data.yaml')
-PLANET_RANGE = config_data["max_person"]
-PERSON_RANGE = config_data["max_planets"]
-COUNT_OF_PEOPLE_AND_PLANET = config_data["count_of_people_and_planet"]
+OUTPUT_PATH: str = os.path.join(OUTPUT_PATH, 'data.yaml')
+PLANET_RANGE: int = config_data["max_person"]
+PERSON_RANGE: int = config_data["max_planets"]
+COUNT_OF_PEOPLE_AND_PLANET: int = config_data["count_of_people_and_planet"]
 
 if COUNT_OF_PEOPLE_AND_PLANET > PLANET_RANGE or COUNT_OF_PEOPLE_AND_PLANET > PERSON_RANGE:
     raise NarrowRangeException(
