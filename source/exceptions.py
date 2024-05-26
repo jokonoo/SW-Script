@@ -12,3 +12,7 @@ class IncorrectURLException(Exception):
 
 class NarrowRangeException(Exception):
     pass
+
+
+class TooHighCountException(Exception):
+    pass

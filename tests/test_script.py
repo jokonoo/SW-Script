@@ -3,7 +3,8 @@ import os
 import aiohttp
 import pytest
 
-from source.script import start_script, load_data_from_request, load_url, load_yaml_data, yaml_data_lengths, OUTPUT_PATH
+from source.script import start_script, load_data_from_request, load_url, load_yaml_data, yaml_data_lengths, \
+    OUTPUT_PATH, load_data_from_response
 import unittest.mock as mock
 
 from source.exceptions import IncorrectURLException, MissingDataTypeException, ZeroCountException
@@ -16,6 +17,7 @@ class TestScript:
         if os.path.exists(OUTPUT_PATH):
             os.remove(OUTPUT_PATH)
 
+    @mock.patch("source.script.COUNT_OF_PEOPLE_AND_PLANET", len(mock_yaml_data["people"]))
     @mock.patch("source.script.load_async_tasks", side_effect=mock_data_values)
     @pytest.mark.asyncio
     async def test_start_script(self, load_data_mock):
@@ -41,6 +43,47 @@ class TestScript:
         incorrect_data = ["http://wrongaddress.com", {"wrong": "data"}]
         with pytest.raises(IncorrectURLException):
             load_data_from_request(*incorrect_data)
+
+    def test_data_from_response_planet_correct(self):
+        test_planet_data = {"name": "test_name", "terrain": "test_terrain"}
+
+        name_test = load_data_from_response(test_planet_data, "name")
+        assert name_test == test_planet_data["name"]
+
+        terrain_test = load_data_from_response(test_planet_data, "terrain")
+        assert terrain_test == test_planet_data["terrain"]
+
+    def test_data_from_response_name_unknown(self):
+        test_data = {"terrain": "test_terrain"}
+
+        name_test = load_data_from_response(test_data, "name")
+        assert name_test == "unknown"
+
+    def test_data_from_response_planet_terrain_unknown(self):
+        test_planet_data = {"name": "test_name"}
+
+        terrain_test = load_data_from_response(test_planet_data, "terrain")
+        assert terrain_test == "unknown"
+
+    def test_data_from_response_person_correct(self):
+        test_person_data = {"name": "test_name", "height": 170}
+
+        name_test = load_data_from_response(test_person_data, "name")
+        assert name_test == test_person_data["name"]
+
+        height_test = load_data_from_response(test_person_data, "height")
+        assert height_test == test_person_data["height"]
+
+    def test_data_from_response_person_height_missing(self):
+        test_person_data = {"name": "test_name"}
+        height_test = load_data_from_response(test_person_data, "height")
+        assert height_test == 0
+
+        test_person_data["height"] = "unknown"
+        height_test = load_data_from_response(test_person_data, "height")
+        assert height_test == 0
+
+
 
     @pytest.mark.asyncio
     async def test_load_url_wrong_data_type(self):
@@ -79,7 +122,3 @@ class TestScript:
         interval_time_value = 0
         await start_script(interval_time_value)
         assert yaml_data_lengths("people") == len(mock_yaml_data["people"])
-
-
-
-

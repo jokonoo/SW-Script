@@ -1,7 +1,7 @@
 import asyncio
 import argparse
 import os
-from script import start_script, OUTPUT_PATH, logging
+from source.script import start_script, OUTPUT_PATH, logging
 
 parser = argparse.ArgumentParser(description="Interval argument parser")
 parser.add_argument("--interval", type=int, required=False,

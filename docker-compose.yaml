@@ -3,6 +3,6 @@ services:
     container_name: app
     build:
       context: .
-    command: python3 -m main --interval 3
+    command: python3 -m main --interval 0
     volumes:
       - ./:/app

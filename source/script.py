@@ -7,7 +7,7 @@ import random
 import yaml
 
 from source.exceptions import IncorrectURLException, MissingDataTypeException, ZeroCountException
-from source.config import config_data, PLANET_RANGE, PERSON_RANGE, OUTPUT_PATH, COUNT_OF_PEOPLE_AND_PLANET
+from config import config_data, PLANET_RANGE, PERSON_RANGE, OUTPUT_PATH, COUNT_OF_PEOPLE_AND_PLANET
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,11 +34,20 @@ async def load_async_tasks(session: aiohttp.ClientSession) -> list[tuple[str, di
     return [(str(response.url), await response.json()) for response in responses]
 
 
+def load_data_from_response(response_data: dict, data_type: str):
+    if data_type == "height":
+        return 0 if not response_data.get(data_type) or response_data.get(data_type) == "unknown" else int(
+            response_data.get(data_type))
+    return response_data.get(data_type) if response_data.get(data_type) else "unknown"
+
+
 def load_data_from_request(url: str, response_data: dict) -> dict:
     if "planets" in url:
-        return {"name": response_data["name"], "terrain": response_data["terrain"]}
+        return {"name": load_data_from_response(response_data, "name"),
+                "terrain": load_data_from_response(response_data, "terrain")}
     elif "people" in url:
-        return {"name": response_data["name"], "height": int(response_data["height"])}
+        return {"name": load_data_from_response(response_data, "name"),
+                "height": load_data_from_response(response_data, "height")}
     raise IncorrectURLException("Incorrect URL address")
 
 
@@ -89,7 +98,7 @@ async def start_script(interval_time_value: int) -> None:
     if COUNT_OF_PEOPLE_AND_PLANET > 0:
         async with aiohttp.ClientSession() as session:
             await add_data(first_iteration=True, session=session)
-            load_yaml_data()
+
             while not (yaml_data_lengths("planets") == COUNT_OF_PEOPLE_AND_PLANET and yaml_data_lengths(
                     "people") == COUNT_OF_PEOPLE_AND_PLANET):
                 await add_data(session=session)

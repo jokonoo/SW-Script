@@ -1,6 +1,6 @@
 {
   "output_path": "/app",
-  "max_person": 15,
-  "max_planets": 15,
-  "count_of_people_and_planet": 10
+  "max_person": 82,
+  "max_planets": 60,
+  "count_of_people_and_planet": 60
 }
