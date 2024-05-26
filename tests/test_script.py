@@ -83,8 +83,6 @@ class TestScript:
         height_test = load_data_from_response(test_person_data, "height")
         assert height_test == 0
 
-
-
     @pytest.mark.asyncio
     async def test_load_url_wrong_data_type(self):
         async with aiohttp.ClientSession() as session:
