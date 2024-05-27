@@ -4,7 +4,7 @@ import aiohttp
 import pytest
 
 from source.script import start_script, load_data_from_request, load_url, load_yaml_data, yaml_data_lengths, \
-    OUTPUT_PATH, load_data_from_response
+    OUTPUT_PATH, load_data_from_response, add_data
 import unittest.mock as mock
 
 from source.exceptions import IncorrectURLException, MissingDataTypeException, ZeroCountException
@@ -30,6 +30,27 @@ class TestScript:
         interval_time_value = 0
         with pytest.raises(ZeroCountException):
             await start_script(interval_time_value)
+
+    @mock.patch("source.script.load_async_tasks", side_effect=mock_data_values)
+    @mock.patch("source.script.aiohttp.ClientSession")
+    @pytest.mark.asyncio
+    async def test_add_data_first_iteration_true(self, session_mock, load_data_mock):
+        await add_data(session_mock, first_iteration=True)
+        yaml_data = load_yaml_data()
+        person_data, planet_data = yaml_data["people"], yaml_data["planets"]
+        assert len(person_data) == 1
+        assert len(planet_data) == 1
+
+    @mock.patch("source.script.load_async_tasks", side_effect=mock_data_values)
+    @mock.patch("source.script.aiohttp.ClientSession")
+    @pytest.mark.asyncio
+    async def test_add_data_two_iterations(self, session_mock, load_data_mock):
+        await add_data(session_mock, first_iteration=True)
+        await add_data(session_mock, first_iteration=False)
+        yaml_data = load_yaml_data()
+        person_data, planet_data = yaml_data["people"], yaml_data["planets"]
+        assert len(person_data) == 2
+        assert len(planet_data) == 2
 
     def test_load_data_from_request_planet(self):
         planet_data = mock_data_values[0][0]
