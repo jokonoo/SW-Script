@@ -30,4 +30,6 @@ Example:
 `python -m main.py --interval 1` It will set interval time sleep to 1 second.
 
 You can run tests simply by running `pytest` in root directory
+
+To use mypy just run `mypy <file_name>` from **source directory** where file_name value is equal to python file name example: `mypy script.py`
  
